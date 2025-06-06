@@ -1,8 +1,15 @@
-const tourService = require('../services/tour.service');
+const Tour = require('../models/tour.model');
+const APIFeatures = require('../utils/apiFeatures');
 
-const getAllTours = (req, res) => {
+const getAllTours = async (req, res) => {
     try {
-        const tours = tourService.getAllTours();
+        const features = new APIFeatures(Tour.find(), req.query)
+            .filter()
+            .sort()
+            .limitFields()
+            .paginate();
+        const tours = await features.query;
+
         res.status(200).json({
             status: 'success',
             results: tours.length,
@@ -16,15 +23,14 @@ const getAllTours = (req, res) => {
     }
 };
 
-const getTourById = (req, res) => {
+const getTourById = async (req, res) => {
     try {
-        const id = parseInt(req.params.id);
-        const tour = tourService.getTourById(id);
+        const tour = await Tour.findById(req.params.id);
 
         if (!tour) {
             return res.status(404).json({
                 status: 'fail',
-                message: `Tour with ID ${id} not found`
+                message: `Tour with ID ${req.params.id} not found`
             });
         }
 
@@ -40,31 +46,33 @@ const getTourById = (req, res) => {
     }
 };
 
-const createTour = (req, res) => {
+const createTour = async (req, res) => {
     try {
-        const newTour = tourService.createTour(req.body);
+        const newTour = await Tour.create(req.body);
 
         res.status(201).json({
             status: 'success',
             data: { tour: newTour }
         });
     } catch (error) {
-        res.status(500).json({
-            status: 'error',
+        res.status(400).json({
+            status: 'fail',
             message: error.message
         });
     }
 };
 
-const updateTour = (req, res) => {
+const updateTour = async (req, res) => {
     try {
-        const id = parseInt(req.params.id);
-        const updatedTour = tourService.updateTour(id, req.body);
+        const updatedTour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
+            new: true,
+            runValidators: true
+        });
 
         if (!updatedTour) {
             return res.status(404).json({
                 status: 'fail',
-                message: `Tour with ID ${id} not found`
+                message: `Tour with ID ${req.params.id} not found`
             });
         }
 
@@ -73,22 +81,21 @@ const updateTour = (req, res) => {
             data: { tour: updatedTour }
         });
     } catch (error) {
-        res.status(500).json({
-            status: 'error',
+        res.status(400).json({
+            status: 'fail',
             message: error.message
         });
     }
 };
 
-const deleteTour = (req, res) => {
+const deleteTour = async (req, res) => {
     try {
-        const id = parseInt(req.params.id);
-        const result = tourService.deleteTour(id);
+        const tour = await Tour.findByIdAndDelete(req.params.id);
 
-        if (!result) {
+        if (!tour) {
             return res.status(404).json({
                 status: 'fail',
-                message: `Tour with ID ${id} not found`
+                message: `Tour with ID ${req.params.id} not found`
             });
         }
 
@@ -97,8 +104,8 @@ const deleteTour = (req, res) => {
             data: null
         });
     } catch (error) {
-        res.status(500).json({
-            status: 'error',
+        res.status(400).json({
+            status: 'fail',
             message: error.message
         });
     }
@@ -124,11 +131,101 @@ const checkRequiredFields = (req, res, next) => {
     next();
 };
 
+const aliasTopTours = (req, res, next) => {
+    req.query.limit = '5';
+    req.query.sort = '-ratingsAverage,price';
+    req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
+    next();
+};
+
+const getTourStats = async (req, res) => {
+    try {
+        const stats = await Tour.aggregate([
+            {
+                $match: { ratingsAverage: { $gte: 4.5 } }
+            },
+            {
+                $group: {
+                    _id: { $toUpper: '$difficulty' },
+                    numTours: { $sum: 1 },
+                    numRatings: { $sum: '$ratingsQuantity' },
+                    avgRating: { $avg: '$ratingsAverage' },
+                    avgPrice: { $avg: '$price' },
+                    minPrice: { $min: '$price' },
+                    maxPrice: { $max: '$price' }
+                }
+            },
+            {
+                $sort: { avgPrice: 1 }
+            }
+        ]);
+
+        res.status(200).json({
+            status: 'success',
+            data: { stats }
+        });
+    } catch (error) {
+        res.status(400).json({
+            status: 'fail',
+            message: error.message
+        });
+    }
+};
+
+const getMonthlyPlan = async (req, res) => {
+    try {
+        const year = parseInt(req.params.year);
+
+        const plan = await Tour.aggregate([
+            {
+                $unwind: '$startDates'
+            },
+            {
+                $match: {
+                    startDates: {
+                        $gte: new Date(`${year}-01-01`),
+                        $lte: new Date(`${year}-12-31`)
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: { $month: '$startDates' },
+                    numToursStarts: { $sum: 1 },
+                    tours: { $push: '$name' }
+                }
+            },
+            {
+                $addFields: { month: '$_id' }
+            },
+            {
+                $project: { _id: 0 }
+            },
+            {
+                $sort: { numToursStarts: -1 }
+            }
+        ]);
+
+        res.status(200).json({
+            status: 'success',
+            data: { plan }
+        });
+    } catch (error) {
+        res.status(400).json({
+            status: 'fail',
+            message: error.message
+        });
+    }
+};
+
 module.exports = {
     getAllTours,
     getTourById,
     createTour,
     updateTour,
     deleteTour,
-    checkRequiredFields
+    checkRequiredFields,
+    aliasTopTours,
+    getTourStats,
+    getMonthlyPlan
 };
