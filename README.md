@@ -92,11 +92,6 @@ JWT_EXPIRES_IN=90d
 
 You can use either a local MongoDB installation or MongoDB Atlas.
 
-### Local MongoDB
-
-1. Make sure MongoDB is installed and running on your machine
-2. The application will connect to the local database by default
-
 ### MongoDB Atlas
 
 1. Create an account on [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
@@ -106,6 +101,12 @@ You can use either a local MongoDB installation or MongoDB Atlas.
 5. Select the latest version of Node.js driver and "Connection String Only"
 6. Copy the connection string and replace the `DATABASE` variable in your `.env` file
 7. Replace `<PASSWORD>` with your actual password
+8. The application will connect to MongoDB Atlas by default
+
+### Local MongoDB
+
+1. Make sure MongoDB is installed and running on your machine
+2. To use the local database, update the connection in app.js to use process.env.LOCAL_DATABASE instead of process.env.DATABASE
 
 ## Importing Development Data
 
