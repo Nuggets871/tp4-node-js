@@ -1,71 +1,82 @@
-const fs = require('fs');
-const path = require('path');
+const User = require('../models/user.model');
 
-const usersFilePath = path.join(__dirname, '..', 'tp2-starter', 'tp2-starter', 'dev-data', 'data', 'users.json');
-
-const getAllUsers = () => {
+const getAllUsers = async () => {
     try {
-        const data = fs.readFileSync(usersFilePath);
-        return JSON.parse(data);
+        const users = await User.find();
+        return users;
     } catch (error) {
-        console.error('Error reading users data:', error);
-        return [];
+        console.error('Error fetching users:', error);
+        throw error;
     }
 };
 
-const getUserById = (id) => {
-    const users = getAllUsers();
-    return users.find(user => user._id === id);
+const getUserById = async (id) => {
+    try {
+        const user = await User.findById(id);
+        return user;
+    } catch (error) {
+        console.error('Error fetching user:', error);
+        throw error;
+    }
 };
 
-const createUser = (userData) => {
-    const users = getAllUsers();
-    const newId = `user-${Date.now()}`;
-    const newUser = { _id: newId, ...userData };
-
-    users.push(newUser);
-
+const createUser = async (userData) => {
     try {
-        fs.writeFileSync(usersFilePath, JSON.stringify(users));
+        const newUser = await User.create(userData);
         return newUser;
     } catch (error) {
-        console.error('Error writing users data:', error);
-        throw new Error('Failed to create user');
+        console.error('Error creating user:', error);
+        throw error;
     }
 };
 
-const updateUser = (id, userData) => {
-    const users = getAllUsers();
-    const userIndex = users.findIndex(user => user._id === id);
-
-    if (userIndex === -1) return null;
-
-    const updatedUser = { ...users[userIndex], ...userData, _id: id };
-    users[userIndex] = updatedUser;
-
+const updateUser = async (id, userData) => {
     try {
-        fs.writeFileSync(usersFilePath, JSON.stringify(users));
+        const { password, passwordConfirm, role, ...allowedFields } = userData;
+
+        const updatedUser = await User.findByIdAndUpdate(
+            id, 
+            allowedFields, 
+            { new: true, runValidators: true }
+        );
+
         return updatedUser;
     } catch (error) {
-        console.error('Error writing users data:', error);
-        throw new Error('Failed to update user');
+        console.error('Error updating user:', error);
+        throw error;
     }
 };
 
-const deleteUser = (id) => {
-    const users = getAllUsers();
-    const userIndex = users.findIndex(user => user._id === id);
-
-    if (userIndex === -1) return false;
-
-    users.splice(userIndex, 1);
-
+const deleteUser = async (id) => {
     try {
-        fs.writeFileSync(usersFilePath, JSON.stringify(users));
-        return true;
+        const result = await User.findByIdAndDelete(id);
+        return !!result;
     } catch (error) {
-        console.error('Error writing users data:', error);
-        throw new Error('Failed to delete user');
+        console.error('Error deleting user:', error);
+        throw error;
+    }
+};
+
+const updateUserRole = async (id, role) => {
+    try {
+        if (!['user', 'guide', 'lead-guide', 'admin'].includes(role)) {
+            throw new Error('Invalid role. Role must be one of: user, guide, lead-guide, admin');
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(
+            id,
+            { role },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedUser) {
+            throw new Error(`User with ID ${id} not found`);
+        }
+
+        return updatedUser;
+    } catch (error) {
+        console.error('Error updating user role:', error);
+        throw error;
     }
 };
 
@@ -74,5 +85,6 @@ module.exports = {
     getUserById,
     createUser,
     updateUser,
-    deleteUser
+    deleteUser,
+    updateUserRole
 };

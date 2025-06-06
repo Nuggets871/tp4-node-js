@@ -20,8 +20,34 @@ The collection uses environment variables to make it easier to work with differe
    - `baseUrl`: Set to `http://localhost:3000` (or your server URL)
    - `tourId`: Leave empty for now
    - `userId`: Leave empty for now
+   - `token`: Leave empty for now (will be filled automatically after login)
 5. Click "Save"
 6. Select your new environment from the environment dropdown in the top right corner
+
+## Authentication
+
+The API uses JWT (JSON Web Token) for authentication. Here's how to authenticate:
+
+1. **Register a new user**:
+   - Use the "Signup" request in the Authentication folder
+   - Fill in the required fields (name, email, password, passwordConfirm)
+   - Send the request
+   - The response will include a JWT token
+
+2. **Login with existing user**:
+   - Use the "Login" request in the Authentication folder
+   - Fill in email and password
+   - Send the request
+   - The response will include a JWT token
+
+3. **Saving the token**:
+   - After a successful signup or login, the token will be automatically saved to the `token` environment variable
+   - To do this manually, copy the token from the response and update the `token` variable in your environment
+
+4. **Using the token**:
+   - All protected routes in the collection already include an Authorization header with the token
+   - The header is set to: `Authorization: Bearer {{token}}`
+   - As long as you have a valid token in your environment, you can access protected routes
 
 ## Getting Tour and User IDs
 

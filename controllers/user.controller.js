@@ -1,8 +1,8 @@
 const userService = require('../services/user.service');
 
-const getAllUsers = (req, res) => {
+const getAllUsers = async (req, res) => {
     try {
-        const users = userService.getAllUsers();
+        const users = await userService.getAllUsers();
         res.status(200).json({
             status: 'success',
             results: users.length,
@@ -16,10 +16,10 @@ const getAllUsers = (req, res) => {
     }
 };
 
-const getUserById = (req, res) => {
+const getUserById = async (req, res) => {
     try {
         const id = req.params.id;
-        const user = userService.getUserById(id);
+        const user = await userService.getUserById(id);
 
         if (!user) {
             return res.status(404).json({
@@ -40,26 +40,26 @@ const getUserById = (req, res) => {
     }
 };
 
-const createUser = (req, res) => {
+const createUser = async (req, res) => {
     try {
-        const newUser = userService.createUser(req.body);
+        const newUser = await userService.createUser(req.body);
 
         res.status(201).json({
             status: 'success',
             data: { user: newUser }
         });
     } catch (error) {
-        res.status(500).json({
-            status: 'error',
+        res.status(400).json({
+            status: 'fail',
             message: error.message
         });
     }
 };
 
-const updateUser = (req, res) => {
+const updateUser = async (req, res) => {
     try {
         const id = req.params.id;
-        const updatedUser = userService.updateUser(id, req.body);
+        const updatedUser = await userService.updateUser(id, req.body);
 
         if (!updatedUser) {
             return res.status(404).json({
@@ -73,17 +73,17 @@ const updateUser = (req, res) => {
             data: { user: updatedUser }
         });
     } catch (error) {
-        res.status(500).json({
-            status: 'error',
+        res.status(400).json({
+            status: 'fail',
             message: error.message
         });
     }
 };
 
-const deleteUser = (req, res) => {
+const deleteUser = async (req, res) => {
     try {
         const id = req.params.id;
-        const result = userService.deleteUser(id);
+        const result = await userService.deleteUser(id);
 
         if (!result) {
             return res.status(404).json({
@@ -97,8 +97,8 @@ const deleteUser = (req, res) => {
             data: null
         });
     } catch (error) {
-        res.status(500).json({
-            status: 'error',
+        res.status(400).json({
+            status: 'fail',
             message: error.message
         });
     }
@@ -124,11 +124,38 @@ const checkRequiredFields = (req, res, next) => {
     next();
 };
 
+const updateUserRole = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const { role } = req.body;
+
+        if (!role) {
+            return res.status(400).json({
+                status: 'fail',
+                message: 'Role is required'
+            });
+        }
+
+        const updatedUser = await userService.updateUserRole(id, role);
+
+        res.status(200).json({
+            status: 'success',
+            data: { user: updatedUser }
+        });
+    } catch (error) {
+        res.status(400).json({
+            status: 'fail',
+            message: error.message
+        });
+    }
+};
+
 module.exports = {
     getAllUsers,
     getUserById,
     createUser,
     updateUser,
     deleteUser,
+    updateUserRole,
     checkRequiredFields
 };

@@ -10,6 +10,9 @@ This project is a RESTful API that allows users to perform CRUD operations on to
 
 - Tour management (Create, Read, Update, Delete)
 - User management (Create, Read, Update, Delete)
+- Authentication with JWT
+- Role-based access control
+- Password encryption with bcrypt
 - MongoDB database integration
 - Advanced filtering, sorting, field limiting, and pagination
 - Tour statistics and monthly plan reports
@@ -24,11 +27,14 @@ This project is a RESTful API that allows users to perform CRUD operations on to
 - `controllers/`: Contains the controllers for handling HTTP requests and responses
   - `tour.controller.js`: Controller for tour-related operations
   - `user.controller.js`: Controller for user-related operations
+  - `auth.controller.js`: Controller for authentication operations
 - `routes/`: Contains the route definitions
   - `tour.route.js`: Routes for tour-related endpoints
   - `user.route.js`: Routes for user-related endpoints
+  - `auth.route.js`: Routes for authentication endpoints
 - `models/`: Contains the Mongoose models
   - `tour.model.js`: Model for tour data
+  - `user.model.js`: Model for user data
 - `utils/`: Contains utility functions
   - `apiFeatures.js`: Class for building MongoDB queries
 - `dev-data/`: Contains development data and scripts
@@ -39,24 +45,30 @@ This project is a RESTful API that allows users to perform CRUD operations on to
 
 ## API Endpoints
 
+### Authentication
+
+- `POST /api/v1/auth/signup`: Register a new user
+- `POST /api/v1/auth/login`: Login and get JWT token
+- `PATCH /api/v1/auth/updateMyPassword`: Update current user's password (protected)
+
 ### Tours
 
-- `GET /api/v1/tours`: Get all tours
-- `POST /api/v1/tours`: Create a new tour
-- `GET /api/v1/tours/:id`: Get a specific tour by ID
-- `PUT /api/v1/tours/:id`: Update a specific tour
-- `DELETE /api/v1/tours/:id`: Delete a specific tour
-- `GET /api/v1/tours/top-5-cheap`: Get the top 5 cheapest tours
-- `GET /api/v1/tours/tour-stats`: Get tour statistics
-- `GET /api/v1/tours/monthly-plan/:year`: Get the monthly plan for a specific year
+- `GET /api/v1/tours`: Get all tours (public)
+- `POST /api/v1/tours`: Create a new tour (protected, restricted to admin and lead-guide)
+- `GET /api/v1/tours/:id`: Get a specific tour by ID (public)
+- `PUT /api/v1/tours/:id`: Update a specific tour (protected, restricted to admin and lead-guide)
+- `DELETE /api/v1/tours/:id`: Delete a specific tour (protected, restricted to admin and lead-guide)
+- `GET /api/v1/tours/top-5-cheap`: Get the top 5 cheapest tours (public)
+- `GET /api/v1/tours/tour-stats`: Get tour statistics (public)
+- `GET /api/v1/tours/monthly-plan/:year`: Get the monthly plan for a specific year (protected, restricted to admin, lead-guide, and guide)
 
 ### Users
 
-- `GET /api/v1/users`: Get all users
-- `POST /api/v1/users`: Create a new user
-- `GET /api/v1/users/:id`: Get a specific user by ID
-- `PUT /api/v1/users/:id`: Update a specific user
-- `DELETE /api/v1/users/:id`: Delete a specific user
+- `GET /api/v1/users`: Get all users (protected, restricted to admin)
+- `POST /api/v1/users`: Create a new user (protected, restricted to admin)
+- `GET /api/v1/users/:id`: Get a specific user by ID (protected, restricted to admin)
+- `PUT /api/v1/users/:id`: Update a specific user (protected, restricted to admin)
+- `DELETE /api/v1/users/:id`: Delete a specific user (protected, restricted to admin)
 
 ## Installation
 
@@ -69,6 +81,8 @@ LOCAL_DATABASE=mongodb://localhost:27017/natours
 PASSWORD=your_mongodb_atlas_password
 DATABASE=mongodb+srv://your_username:<PASSWORD>@your_cluster.mongodb.net/natours?retryWrites=true&w=majority
 PORT=3000
+JWT_SECRET=your-ultra-secure-and-ultra-long-secret-key-for-jwt-token
+JWT_EXPIRES_IN=90d
 ```
 
 4. Set up MongoDB (see Database Setup section)
@@ -136,6 +150,55 @@ The API supports various query parameters for filtering, sorting, field limiting
 ```
 /api/v1/tours?page=1&limit=10
 ```
+
+## Authentication
+
+The API uses JWT (JSON Web Token) for authentication. Here's how to use it:
+
+### Registration
+
+To register a new user, send a POST request to `/api/v1/auth/signup` with the following body:
+
+```json
+{
+  "name": "Your Name",
+  "email": "your.email@example.com",
+  "password": "password123",
+  "passwordConfirm": "password123"
+}
+```
+
+The response will include a JWT token that you can use for authentication.
+
+### Login
+
+To login, send a POST request to `/api/v1/auth/login` with the following body:
+
+```json
+{
+  "email": "your.email@example.com",
+  "password": "password123"
+}
+```
+
+The response will include a JWT token that you can use for authentication.
+
+### Accessing Protected Routes
+
+To access protected routes, include the JWT token in the Authorization header of your request:
+
+```
+Authorization: Bearer your_jwt_token
+```
+
+### User Roles
+
+The API supports the following user roles:
+
+- `user`: Regular user with limited access
+- `guide`: Tour guide with access to tour information
+- `lead-guide`: Lead tour guide with ability to create and manage tours
+- `admin`: Administrator with full access to all resources
 
 ## Testing with Postman
 

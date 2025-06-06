@@ -3,11 +3,11 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const Tour = require('../models/tour.model');
 
-dotenv.config({ path: '../.env' });
+dotenv.config({ path: './.env' });
 
 const DB = process.env.DATABASE.replace('<PASSWORD>', process.env.PASSWORD);
 
-mongoose.connect(process.env.LOCAL_DATABASE)
+mongoose.connect(DB)
     .then(() => {
         console.log("Connection to MongoDB has succeeded !!");
     })
