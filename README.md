@@ -137,6 +137,18 @@ The API supports various query parameters for filtering, sorting, field limiting
 /api/v1/tours?page=1&limit=10
 ```
 
+## Testing with Postman
+
+A Postman collection is included in the repository to help you test the API. The collection includes all endpoints with example request bodies and environment variables.
+
+To use the Postman collection:
+
+1. Import the `postman_collection.json` file into Postman
+2. Set up environment variables as described in `POSTMAN_README.md`
+3. Use the collection to test all API endpoints
+
+For detailed instructions, see the [POSTMAN_README.md](./POSTMAN_README.md) file.
+
 ## Author
 
 Christopher BONDIER RA1 (p2200025)

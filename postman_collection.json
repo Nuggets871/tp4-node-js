@@ -1,0 +1,370 @@
+{
+  "info": {
+    "name": "Natours API",
+    "description": "A RESTful API for managing tours and users built with Node.js, Express, and MongoDB.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Tours",
+      "description": "Endpoints for managing tours",
+      "item": [
+        {
+          "name": "Get All Tours",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tours",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tours"]
+            },
+            "description": "Get all tours with optional filtering, sorting, field limiting, and pagination."
+          }
+        },
+        {
+          "name": "Get Tour by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tours/{{tourId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tours", "{{tourId}}"]
+            },
+            "description": "Get a specific tour by its ID."
+          }
+        },
+        {
+          "name": "Create Tour",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tours",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tours"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Tour\",\n  \"duration\": 5,\n  \"maxGroupSize\": 25,\n  \"difficulty\": \"easy\",\n  \"price\": 397,\n  \"summary\": \"Test tour summary\",\n  \"description\": \"Test tour description\",\n  \"imageCover\": \"tour-1-cover.jpg\",\n  \"images\": [\"tour-1-1.jpg\", \"tour-1-2.jpg\", \"tour-1-3.jpg\"],\n  \"startDates\": [\"2023-04-25\", \"2023-07-20\", \"2023-10-05\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Create a new tour. Required fields: name, duration, maxGroupSize, difficulty, price, summary, description, imageCover."
+          }
+        },
+        {
+          "name": "Update Tour",
+          "request": {
+            "method": "PUT",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tours/{{tourId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tours", "{{tourId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 499,\n  \"duration\": 7\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Update a specific tour by its ID."
+          }
+        },
+        {
+          "name": "Delete Tour",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tours/{{tourId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tours", "{{tourId}}"]
+            },
+            "description": "Delete a specific tour by its ID."
+          }
+        },
+        {
+          "name": "Get Top 5 Cheap Tours",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tours/top-5-cheap",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tours", "top-5-cheap"]
+            },
+            "description": "Get the top 5 cheapest tours sorted by rating."
+          }
+        },
+        {
+          "name": "Get Tour Statistics",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tours/tour-stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tours", "tour-stats"]
+            },
+            "description": "Get statistics about tours grouped by difficulty."
+          }
+        },
+        {
+          "name": "Get Monthly Plan",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tours/monthly-plan/2021",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tours", "monthly-plan", "2021"]
+            },
+            "description": "Get the monthly plan for a specific year."
+          }
+        },
+        {
+          "name": "Filter Tours by Duration",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tours?duration=5&difficulty=easy",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tours"],
+              "query": [
+                {
+                  "key": "duration",
+                  "value": "5"
+                },
+                {
+                  "key": "difficulty",
+                  "value": "easy"
+                }
+              ]
+            },
+            "description": "Filter tours by duration and difficulty."
+          }
+        },
+        {
+          "name": "Filter Tours with Advanced Operators",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tours?duration[gte]=5&difficulty=easy",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tours"],
+              "query": [
+                {
+                  "key": "duration[gte]",
+                  "value": "5"
+                },
+                {
+                  "key": "difficulty",
+                  "value": "easy"
+                }
+              ]
+            },
+            "description": "Filter tours with advanced operators (gte, gt, lte, lt)."
+          }
+        },
+        {
+          "name": "Sort Tours",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tours?sort=price,ratingsAverage",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tours"],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "price,ratingsAverage"
+                }
+              ]
+            },
+            "description": "Sort tours by price and ratings average."
+          }
+        },
+        {
+          "name": "Limit Fields",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tours?fields=name,duration,price",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tours"],
+              "query": [
+                {
+                  "key": "fields",
+                  "value": "name,duration,price"
+                }
+              ]
+            },
+            "description": "Limit the fields returned in the response."
+          }
+        },
+        {
+          "name": "Paginate Tours",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tours?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tours"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Paginate the tours results."
+          }
+        },
+        {
+          "name": "Combined Query",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tours?duration[gte]=5&difficulty=easy&sort=price,ratingsAverage&fields=name,duration,price&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tours"],
+              "query": [
+                {
+                  "key": "duration[gte]",
+                  "value": "5"
+                },
+                {
+                  "key": "difficulty",
+                  "value": "easy"
+                },
+                {
+                  "key": "sort",
+                  "value": "price,ratingsAverage"
+                },
+                {
+                  "key": "fields",
+                  "value": "name,duration,price"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Combined query with filtering, sorting, field limiting, and pagination."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "description": "Endpoints for managing users",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users"]
+            },
+            "description": "Get all users."
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "{{userId}}"]
+            },
+            "description": "Get a specific user by ID."
+          }
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Create a new user. Required fields: name, email, password."
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "{{userId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated User Name\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Update a specific user by ID."
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "{{userId}}"]
+            },
+            "description": "Delete a specific user by ID."
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "tourId",
+      "value": "replace_with_actual_tour_id",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "replace_with_actual_user_id",
+      "type": "string"
+    }
+  ]
+}
